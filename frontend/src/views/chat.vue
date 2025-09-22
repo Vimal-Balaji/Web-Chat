@@ -45,6 +45,7 @@
         <button @click="toggleBlock" class="btn btn-sm btn-outline-danger ms-3">
           {{ blockedUser[senderId] ? "Unblock" : "Block" }}
         </button>
+        <button @click="videoCall" class="m-2"><i class="bi bi-camera-video-fill"></i></button>
       </div>
 
       <!-- Messages -->
@@ -85,6 +86,20 @@
       </div>
     </div>
   </div>
+  <div
+      v-if="showModal"
+      class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+      style="background-color: rgba(0,0,0,0.5); z-index: 1005;"
+    >
+      <div class="bg-white p-4 rounded shadow" style="width: 300px;">
+        <h5 class="mb-3">Incoming Video Call</h5>
+        <p>{{ modalMessage }}</p>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-success" @click="acceptCall(true)">Accept</button>
+          <button class="btn btn-danger" @click="acceptCall(false)">Reject</button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script>
@@ -99,11 +114,13 @@ export default {
       senderId: "",
       senderName: "",
       userId: localStorage.getItem("userId"),
+      showModal:false,
       messages: [],
       messageDict: {},
       unreadDict: {}, // store unread status
       input: "",
-      blockedUser: {}, // store block status per user
+      blockedUser: {},// store block status per user
+      modalMessage:"", 
     };
   },
   async created() {
@@ -140,6 +157,14 @@ export default {
         message: data.message,
         senderId: data.senderId,
       });
+    });
+    
+    this.socket.on("video_call", (data) => {
+      this.showModal=true;
+      this.modalMessage="Incoming video call from "+data.name+"("+data.PhNo+")";
+      console.log(modalMessage);
+      
+    
     });
   },
   methods: {
@@ -295,6 +320,12 @@ export default {
         console.error("Error blocking/unblocking user:", error);
       }
     },
+    async videoCall(){
+      this.socket.emit("video_call",{
+        to:this.senderId
+      })
+      console.log("video call sent to ",this.senderId);
+    }
   },
 };
 </script>

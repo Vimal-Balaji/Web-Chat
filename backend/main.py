@@ -305,6 +305,25 @@ async def handle_messages(sid,data):
     await sio.emit("new_message", {"otherId":senderId,"name":name,"messageId":new_message.messageId,"chatId":chatId, "senderId": senderId, "receiverId": receiverId, "message": message,"timestamp":new_message.timestamp.isoformat()}, room=receiver_sid) 
     #await sio.emit("new_message", {"messageId":new_message.messageId,"chatId":chatId, "senderId": senderId, "receiverId": receiverId, "message": message,"timestamp":new_message.timestamp}, room=sid)
 
+@sio.on("video_call")
+async def handle_video_call(sid,data):
+    db: Session = next(get_db())
+    senderId=r.hget("sidMap", sid)
+    if not senderId:
+        print("Unauthorized user")
+        return
+    receiverId=data.get("to")
+    if db.query(BlockedUsers).filter_by(userId=receiverId, blockedUserId=senderId).first() :
+        return
+    print(f"Video call from {senderId} to {receiverId}")
+    receiver_sid = r.hget("userMap", str(receiverId))
+    print(receiver_sid)
+    details=db.query(Users).filter(Users.userId==senderId).first()
+    if not receiver_sid:
+        print(f"User {receiverId} is offline")
+        return
+    
+    await sio.emit("video_call", {"from":senderId,"name":details.name,"PhNo":details.phoneNo}, room=receiver_sid)
 if  __name__ == "__main__":
     import uvicorn
     uvicorn.run(asgi_app, host="0.0.0.0", port=8000, reload=True)
