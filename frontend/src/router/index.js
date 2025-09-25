@@ -22,6 +22,12 @@ const router = createRouter({
       meta: { requiresAuth: true }   // Requires authentication
     },
     {
+      path: '/videoChat',
+      name: 'videoChat',
+      component: () => import('../views/videoChat.vue'),
+      meta: { requiresAuth: true }   // Requires authentication
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/',
       meta: { requiresAuth: false }

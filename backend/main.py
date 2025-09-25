@@ -3,7 +3,7 @@ from fastapi import FastAPI,Depends,HTTPException,status,Response,Cookie,Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import redis,random,jwt,json
+import redis,random,jwt,json,time
 from typing import Optional
 from models import *
 from auth import hash_password, verify_password,create_jwt_token,decode_jwt_token
@@ -238,31 +238,44 @@ def unblock_user(request:Request,otherUserId:int, db: Session = Depends(get_db))
 
 @sio.event
 async def connect(sid, environ):
-   token=environ.get('HTTP_COOKIE', '').split('token=')[-1] if 'token=' in environ.get('HTTP_COOKIE', '') else None
-   if not token:
+    token=environ.get('HTTP_COOKIE', '').split('token=')[-1] if 'token=' in environ.get('HTTP_COOKIE', '') else None
+    page=environ.get('QUERY_STRING', '')
+    params = dict(item.split("=") for item in page.split("&") if "=" in item)
+    type=params.get("type","")
+    if not token:
         return False
-   payload = decode_jwt_token(token)
-   if not payload:
+    payload = decode_jwt_token(token)
+    userId=payload.get("userId")
+    if not payload:
         return False
-   userId=payload.get("userId")
-   r.hset("sidMap", sid, str(userId))
-   r.hset("userMap", str(userId), sid)
-   print(f"Client connected: {sid},{userId}")
-   offline_key = f"offline:{userId}"
-   while True:
-    msg_json = r.rpop(offline_key)  # get messages in correct order (FIFO)
-    if not msg_json:
-        break
-    msg_payload = json.loads(msg_json)
-    await sio.emit("new_message", msg_payload, room=sid)
-    print(f"Delivered offline message to {userId}")
+    if type=='chat':
+        r.hset("sidMap", sid, str(userId))
+        r.hset("userMap", str(userId), sid)
+        print(f"Client connected: {sid},{userId}")
+        offline_key = f"offline:{userId}"
+        while True: 
+            msg_json = r.rpop(offline_key)  # get messages in correct order (FIFO)
+            if not msg_json:
+                break
+            msg_payload = json.loads(msg_json)
+            await sio.emit("new_message", msg_payload, room=sid)
+            print(f"Delivered offline message to {userId}")
+    else:
+        print(f"Client connected to non-chat namespace: {sid}")
+        r.hset("videoSidMap", sid, str(userId))
+        r.hset("videoUserMap", str(userId), sid)
 
+    
 @sio.event
 async def disconnect(sid):
     userId = r.hget("sidMap", sid)
-    if userId:
+    if userId: 
         r.hdel("userMap", userId)
     r.hdel("sidMap", sid)
+    userId = r.hget("videoSidMap", sid)
+    if userId:
+        r.hdel("videoUserMap", userId)
+    r.hdel("videoSidMap", sid)
     print(f"Client disconnected: {sid}")
 
 @sio.on("private_message")
@@ -324,6 +337,23 @@ async def handle_video_call(sid,data):
         return
     
     await sio.emit("video_call", {"from":senderId,"name":details.name,"PhNo":details.phoneNo}, room=receiver_sid)
+count=0
+@sio.on("signalling")
+async def handle_signalling(sid,data):
+    userId=r.hget("videoSidMap", sid)
+    otherUserId=data.get("to")
+    otherSid= r.hget("videoUserMap", str(otherUserId))
+    global count
+    count=count+1
+    #print(data)
+    print(f"Attempt {count}: Signalling from {userId} to {otherUserId} ({otherSid})")
+  
+    if otherSid:
+        await sio.emit("signalling", data, room=otherSid)
+    else:
+        print(f"User {otherUserId} is offline for signalling")
+
+
 if  __name__ == "__main__":
     import uvicorn
     uvicorn.run(asgi_app, host="0.0.0.0", port=8000, reload=True)

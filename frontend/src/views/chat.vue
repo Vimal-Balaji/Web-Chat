@@ -121,6 +121,7 @@ export default {
       input: "",
       blockedUser: {},// store block status per user
       modalMessage:"", 
+      videoCallerId:"",
     };
   },
   async created() {
@@ -128,7 +129,7 @@ export default {
     this.getNames();
   },
   async mounted() {
-    this.socket = io("http://localhost:8000", { withCredentials: true });
+    this.socket = io("http://localhost:8000", { withCredentials: true,query:{type:"chat"} });
 
     this.socket.on("connect", () => {
       console.log("Connected to server");
@@ -162,10 +163,17 @@ export default {
     this.socket.on("video_call", (data) => {
       this.showModal=true;
       this.modalMessage="Incoming video call from "+data.name+"("+data.PhNo+")";
-      console.log(modalMessage);
+      console.log(this.modalMessage);
+      // console.log(data);
+      this.videoCallerId=data.from;
       
     
     });
+  },
+  async unmounted() {
+    if (this.socket) {
+      this.socket.disconnect();
+    }
   },
   methods: {
     // --------------------------functions of create cycle---------------------------
@@ -324,8 +332,16 @@ export default {
       this.socket.emit("video_call",{
         to:this.senderId
       })
+      this.videoCallerId=this.senderId;
+      this.$router.push({ name: 'videoChat', query: { to: this.videoCallerId } });
       console.log("video call sent to ",this.senderId);
-    }
+    },
+    async acceptCall(accept){
+      this.showModal=false;
+      if(accept){
+        this.$router.push({ name: 'videoChat', query: { to: this.videoCallerId } });
+      }
+    },
   },
 };
 </script>

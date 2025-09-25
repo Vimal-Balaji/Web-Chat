@@ -1,0 +1,61 @@
+2025-09-25 21:38:20,740 - connection - INFO - Video client connected: SID 6xumu3ZPhLqJBPyeAAAC, UserID 100001
+2025-09-25 21:38:20,746 - connection - INFO - Video client connected: SID HQ53X36Ljdo8MIZWAAAD, UserID 100002
+2025-09-25 21:38:28,363 - connection - INFO - Client disconnected: SID 6xumu3ZPhLqJBPyeAAAC, UserID 100001
+2025-09-25 21:38:28,373 - message - INFO - User 100001 retrieved last messages, count: 2
+2025-09-25 21:38:28,396 - connection - INFO - Chat client connected: SID 9s4QVyW-2Hm8df1cAAAF, UserID 100001
+2025-09-25 21:38:30,403 - connection - INFO - Client disconnected: SID HQ53X36Ljdo8MIZWAAAD, UserID 100002
+2025-09-25 21:38:30,413 - message - INFO - User 100002 retrieved last messages, count: 3
+2025-09-25 21:38:30,435 - connection - INFO - Chat client connected: SID pMOVD3AEo8Ny9BzXAAAH, UserID 100002
+2025-09-25 21:38:31,240 - connection - INFO - Client disconnected: SID pMOVD3AEo8Ny9BzXAAAH, UserID Unknown
+2025-09-25 21:38:31,348 - connection - INFO - Chat client connected: SID boxG7Nr7NSwILrN5AAAJ, UserID 100002
+2025-09-25 21:38:31,358 - message - INFO - User 100002 retrieved last messages, count: 3
+2025-09-25 21:38:32,623 - connection - INFO - Client disconnected: SID 9s4QVyW-2Hm8df1cAAAF, UserID Unknown
+2025-09-25 21:38:32,758 - message - INFO - User 100001 retrieved last messages, count: 2
+2025-09-25 21:38:32,759 - connection - INFO - Chat client connected: SID uhrzD0APcOM1sWOVAAAL, UserID 100001
+2025-09-25 21:38:41,266 - message - INFO - User 100001 retrieved messages with 100002, count: 6
+2025-09-25 21:38:42,182 - signaling - INFO - Video call initiated from 100001 to 100002
+2025-09-25 21:38:42,188 - signaling - INFO - Video call notification sent to 100002
+2025-09-25 21:38:42,224 - connection - INFO - Client disconnected: SID uhrzD0APcOM1sWOVAAAL, UserID Unknown
+2025-09-25 21:38:42,263 - connection - INFO - Video client connected: SID V_A2Zs_jLEU0fXQ_AAAN, UserID 100001
+2025-09-25 21:38:42,986 - signaling - INFO - Attempt 1: offer from 100001 to 100002 (SID: None)
+2025-09-25 21:38:42,986 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:42,991 - signaling - INFO - Attempt 2: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:42,993 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:42,993 - signaling - INFO - Attempt 3: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:42,993 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:42,996 - signaling - INFO - Attempt 4: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:42,996 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:42,998 - signaling - INFO - Attempt 5: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:42,998 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,117 - signaling - INFO - Attempt 6: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,117 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,118 - signaling - INFO - Attempt 7: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,118 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,118 - signaling - INFO - Attempt 8: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,118 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,122 - signaling - INFO - Attempt 9: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,122 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,468 - signaling - INFO - Attempt 10: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,468 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,472 - signaling - INFO - Attempt 11: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,472 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,567 - signaling - INFO - Attempt 12: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,568 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:38:43,574 - signaling - INFO - Attempt 13: candidate from 100001 to 100002 (SID: None)
+2025-09-25 21:38:43,574 - signaling - WARNING - User 100002 is offline for signaling
+2025-09-25 21:39:05,690 - connection - INFO - Client disconnected: SID boxG7Nr7NSwILrN5AAAJ, UserID Unknown
+2025-09-25 21:39:05,712 - connection - INFO - Video client connected: SID pcgfk0YNf_DkozEyAAAP, UserID 100002
+2025-09-25 21:39:06,031 - signaling - INFO - Attempt 14: offer from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,040 - signaling - INFO - Attempt 15: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,041 - signaling - INFO - Attempt 16: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,043 - signaling - INFO - Attempt 17: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,044 - signaling - INFO - Attempt 18: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,045 - signaling - INFO - Attempt 19: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,046 - signaling - INFO - Attempt 20: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,047 - signaling - INFO - Attempt 21: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,049 - signaling - INFO - Attempt 22: candidate from 100002 to 100001 (SID: V_A2Zs_jLEU0fXQ_AAAN)
+2025-09-25 21:39:06,103 - signaling - INFO - Attempt 23: answer from 100001 to 100002 (SID: pcgfk0YNf_DkozEyAAAP)
+2025-09-25 21:39:06,108 - signaling - INFO - Attempt 24: candidate from 100001 to 100002 (SID: pcgfk0YNf_DkozEyAAAP)
+2025-09-25 21:39:06,111 - signaling - INFO - Attempt 25: candidate from 100001 to 100002 (SID: pcgfk0YNf_DkozEyAAAP)
+2025-09-25 21:41:01,658 - connection - INFO - Client disconnected: SID pcgfk0YNf_DkozEyAAAP, UserID 100002
+2025-09-25 21:41:01,658 - connection - INFO - Client disconnected: SID V_A2Zs_jLEU0fXQ_AAAN, UserID 100001
