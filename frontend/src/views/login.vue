@@ -31,13 +31,30 @@ export default {
     return {
       phoneNo: '',
       password: '',
-      message: ''
+      message: '',
+      url:"http://localhost:8000/"
     }
   },
+  created(){
+   this.checkAuth();
+
+  },
   methods: {
+    async checkAuth(){
+       const response=await fetch('http://localhost:8000/check-auth',{
+      method:'GET',
+      credentials:"include"
+    });
+    const data=await response.json();
+    if(data.authenticated){
+      localStorage.setItem('userId',data.userId);
+      this.$router.push('/chat');
+      console.log("User already authenticated, redirecting to chat.");
+    }
+    },
     async login() {
       try {
-        const response = await fetch('http://localhost:8000/login', {
+        const response = await fetch(this.url + 'login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: "include",
@@ -47,6 +64,7 @@ export default {
           })
         });
         const data = await response.json();
+        console.log(data);
         if (response.ok) {
           this.message = "Login successful!!";
           console.log("Login successful:", data);

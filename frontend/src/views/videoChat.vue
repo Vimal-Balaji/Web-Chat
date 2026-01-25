@@ -1,8 +1,17 @@
 <template>
   <div class="video-call">
     <h2>WebRTC Video Call (First 2 users only)</h2>
-    <video ref="localVideo" autoplay playsinline muted class="video"></video>
-    <video ref="remoteVideo" autoplay playsinline class="video"></video>
+
+    <div class="video-container">
+      <video ref="localVideo" autoplay playsinline class="video"></video>
+      <video ref="remoteVideo" autoplay playsinline class="video"></video>
+    </div>
+
+    <div class="controls">
+      <button @click="toggleMute">{{ isMuted ? "Unmute Mic" : "Mute Mic" }}</button>
+      <button @click="toggleVideo">{{ videoOff ? "Turn Video On" : "Turn Video Off" }}</button>
+      <button @click="$router.push('/chat')">Back to Chat</button>
+    </div>
   </div>
 </template>
 
@@ -17,27 +26,23 @@ export default {
       otherUserId: this.$route.query.to,
       socket: null,
       pc: null,
-      localStream: null
+      localStream: null,
+      isMuted: false,
+      videoOff: false
     };
   },
   async mounted() {
     try {
-      // Initialize socket first
       this.socket = io("http://localhost:8000", { 
         withCredentials: true,
         query: { type: "video" } 
       });
 
-      // Get local media stream
-      this.localStream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      
-      // Set local video source
+      // Access mic and camera
+      this.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       this.$refs.localVideo.srcObject = this.localStream;
 
-      // Create peer connection with STUN/TURN servers
+      // Create peer connection
       this.pc = new RTCPeerConnection({
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
@@ -49,18 +54,15 @@ export default {
         ]
       });
 
-      // Add local tracks to peer connection
-      this.localStream.getTracks().forEach(track => {
-        this.pc.addTrack(track, this.localStream);
-      });
+      // Add local tracks
+      this.localStream.getTracks().forEach(track => this.pc.addTrack(track, this.localStream));
 
-      // Handle remote stream
+      // Remote stream
       this.pc.ontrack = (event) => {
-        console.log("Received remote stream");
         this.$refs.remoteVideo.srcObject = event.streams[0];
       };
 
-      // Handle ICE candidates
+      // ICE candidate
       this.pc.onicecandidate = (event) => {
         if (event.candidate) {
           this.socket.emit("signalling", { 
@@ -71,14 +73,14 @@ export default {
         }
       };
 
-      // Create offer when negotiation is needed
+      // Negotiation
       this.pc.onnegotiationneeded = async () => {
         try {
           const offer = await this.pc.createOffer();
           await this.pc.setLocalDescription(offer);
           this.socket.emit("signalling", { 
             type: "offer", 
-            offer: offer,
+            offer, 
             to: this.otherUserId 
           });
         } catch (error) {
@@ -86,7 +88,7 @@ export default {
         }
       };
 
-      // Set up socket event listeners for signaling
+      // Signalling events
       this.socket.on("signalling", async (data) => {
         try {
           if (data.type === "offer") {
@@ -95,31 +97,23 @@ export default {
             await this.pc.setLocalDescription(answer);
             this.socket.emit("signalling", { 
               type: "answer", 
-              answer: answer,
+              answer, 
               to: this.otherUserId 
             });
-          } 
-          else if (data.type === "answer") {
+          } else if (data.type === "answer") {
             await this.pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-          } 
-          else if (data.type === "candidate") {
-            try {
-              await this.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch (e) {
-              console.error("Error adding ICE candidate:", e);
-            }
+          } else if (data.type === "candidate") {
+            await this.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
           }
         } catch (error) {
           console.error("Error handling signalling message:", error);
         }
       });
 
-      // Handle socket connection
       this.socket.on("connect", () => {
         console.log("Socket connected to video namespace");
       });
 
-      // Handle connection state changes for debugging
       this.pc.onconnectionstatechange = () => {
         console.log("Connection state:", this.pc.connectionState);
       };
@@ -132,17 +126,22 @@ export default {
       console.error("Error initializing video call:", error);
     }
   },
+  methods: {
+    toggleMute() {
+      this.isMuted = !this.isMuted;
+      this.localStream.getAudioTracks().forEach(track => track.enabled = !this.isMuted);
+    },
+    toggleVideo() {
+      this.videoOff = !this.videoOff;
+      this.localStream.getVideoTracks().forEach(track => track.enabled = !this.videoOff);
+    }
+  },
   unmounted() {
-    // Cleanup
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => track.stop());
     }
-    if (this.pc) {
-      this.pc.close();
-    }
-    if (this.socket) {
-      this.socket.disconnect();
-    }
+    if (this.pc) this.pc.close();
+    if (this.socket) this.socket.disconnect();
   }
 };
 </script>
@@ -155,10 +154,35 @@ export default {
   padding: 20px;
 }
 
+.video-container {
+  display: flex;
+  gap: 15px;
+}
+
 .video {
   width: 300px;
   height: 225px;
   border: 1px solid #ccc;
-  margin: 10px;
+  border-radius: 8px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  background-color: #1976d2;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #125ca1;
 }
 </style>

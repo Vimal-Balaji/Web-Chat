@@ -50,21 +50,47 @@
 
       <!-- Messages -->
       <div class="flex-grow-1 overflow-auto p-3 bg-light">
-        <div
-          v-for="(msg, i) in messages"
-          :key="i"
-          class="d-flex mb-2"
-          :class="msg.from == 'me' ? 'justify-content-end' : 'justify-content-start'"
-        >
+      <div
+        v-for="(msg, i) in messages"
+        :key="i"
+        class="d-flex mb-2"
+        :class="msg.from === 'me' ? 'justify-content-end' : 'justify-content-start'"
+      >
+        <div class="message-wrapper">
           <div
-            class="p-2 rounded"
-            :class="msg.from == 'me' ? 'bg-dark text-white' : 'bg-white border'"
-            style="max-width: 60%;"
+            class="message-bubble p-2 rounded position-relative"
+            :class="msg.from === 'me' ? 'bg-dark text-white' : 'bg-white border'"
           >
-            {{ msg.text }}
+            <!-- THREE DOTS -->
+            <div
+              v-if="msg.from === 'me'"
+              class="dropdown hover-menu position-absolute top-50 start-0 translate-middle-y"
+              >
+              <button
+                class="btn btn-sm btn-light rounded-circle"
+                data-bs-toggle="dropdown"
+                >
+               &#8942;
+              </button>
+
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    @click="unsendMessage(msg.messageId)"
+                  >
+                    Unsend
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+             <!-- MESSAGE TEXT -->
+            <span class="ms-4">{{ msg.text }}</span>
           </div>
         </div>
-      </div>
+        </div>
+        </div>
 
       <!-- Input Box -->
       <div class="p-3 border-top d-flex">
@@ -258,6 +284,7 @@ export default {
           this.messages = dat.map((msg) => ({
             from: msg.senderId == this.userId ? "me" : "other",
             text: msg.message,
+            messageId:msg.messageId
           }));
           this.messageDict[this.senderId] = this.messages;
         } else {
@@ -342,6 +369,26 @@ export default {
         this.$router.push({ name: 'videoChat', query: { to: this.videoCallerId } });
       }
     },
+    async unsendMessage(messageId){
+      try {
+        const response = await fetch(
+          `http://localhost:8000/unsend/${messageId}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
+        if (response.ok) {
+          // Remove message from local state
+          this.messages = this.messages.filter(msg => msg.messageId !== messageId);
+          this.messageDict[this.senderId] = this.messages;
+        } else {
+          console.error("Failed to unsend message");
+        }
+      } catch (error) {
+        console.error("Error unsending message:", error);
+      }
+    }
   },
 };
 </script>
@@ -350,5 +397,21 @@ export default {
 .chat-item:hover {
   background-color: #f8f9fa;
   cursor: pointer;
+}
+.message-wrapper {
+  max-width: 60%;
+}
+
+.hover-menu {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Show dots ONLY when message is hovered */
+.message-bubble:hover .hover-menu,
+.hover-menu:hover {
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>

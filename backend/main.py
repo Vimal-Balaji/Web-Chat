@@ -42,6 +42,7 @@ class SignupRequest(BaseModel):
     phoneNo: str
     password: str
     otp: str
+#-----------------------------API endpoints-------------------------------------
 
 @app.post("/login",response_model=LoginRequest)
 async def login(data:LoginRequest,response:Response,db:Session=Depends(get_db)):
@@ -68,8 +69,8 @@ async def login(data:LoginRequest,response:Response,db:Session=Depends(get_db)):
         secure=False,           # False if testing on localhost
         samesite="strict"
     )
-
     return response
+
 @app.post("/logout")
 async def logout(request:Request,response: Response):
     sql="""update status set isOnline='N', lastSeen=now() where userId=:userId"""
@@ -235,6 +236,24 @@ def unblock_user(request:Request,otherUserId:int, db: Session = Depends(get_db))
     db.delete(blocked_entry)
     db.commit()
     return {"message": "User unblocked successfully"}
+
+@app.delete("/unsend/{messageId}")
+def unsendMessages(request:Request,messageId:int, db: Session = Depends(get_db)):
+    token=request.cookies.get("token")
+    if not token :
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    payload = decode_jwt_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    userId=payload.get("userId")
+    message_entry = db.query(Messages).filter_by(messageId=messageId, senderId=userId).first()
+    if not message_entry:
+        raise HTTPException(status_code=400, detail="Message not found or you are not the sender")
+    db.delete(message_entry)
+    db.commit()
+    return {"message": "Message unsent successfully"}
+
+#-----------------------------Socket.IO events-------------------------------------
 
 @sio.event
 async def connect(sid, environ):
